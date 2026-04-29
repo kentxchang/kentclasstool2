@@ -51,10 +51,10 @@
 
 | 工具 | GitHub Pages 網址 |
 | --- | --- |
-| 剛好學 | <01classtools.html> |
-| 剛好白板 | <02classwhiteboard.html> |
-| 剛好簡報 | <03classppt.html> |
-| 剛好測 | <04classquiz.html> |
+| 剛好學 | <https://github.com/kentxchang/kentclasstool2/01classtools.html> |
+| 剛好白板 | <https://github.com/kentxchang/kentclasstool2/02classwhiteboard.html> |
+| 剛好簡報 | <https://github.com/kentxchang/kentclasstool2/03classppt.html> |
+| 剛好測 | <https://github.com/kentxchang/kentclasstool2/04classquiz.html> |
 
 建議課堂使用流程：
 
