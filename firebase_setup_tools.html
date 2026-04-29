@@ -1,0 +1,319 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>剛好系列 Firebase 設定更新器</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+
+        /* 自定義捲軸 */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* 動畫 */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up { animation: fadeInUp 0.3s ease-out forwards; }
+
+        /* 按鈕懸停效果 */
+        .btn-hover {
+            transition: all 0.2s ease-in-out;
+        }
+        .btn-hover:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3);
+        }
+
+        /* 輸入框聚焦效果 */
+        .input-focus {
+            transition: all 0.2s ease;
+        }
+        .input-focus:focus {
+            outline: none;
+            ring: 2px;
+            ring-color: rgb(139 92 246);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-3xl">
+        <!-- Header Card -->
+        <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-slate-200 p-6 md:p-8 mb-6 animate-fade-in-up">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-pink-500 to-violet-600 rounded-xl flex items-center justify-center text-white">
+                    <i class="fas fa-fire text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-600 to-violet-600">
+                        剛好系列 Firebase 設定器
+                    </h1>
+                    <p class="text-sm text-slate-500">快速更新您的 Firebase 配置</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Card -->
+        <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-slate-200 p-6 md:p-8 space-y-6 animate-fade-in-up" style="animation-delay: 0.1s;">
+
+            <!-- 說明區塊 -->
+            <div class="bg-gradient-to-r from-violet-50 to-pink-50 rounded-xl p-4 border border-violet-100">
+                <div class="flex items-start gap-3">
+                    <i class="fas fa-info-circle text-violet-600 text-xl mt-1"></i>
+                    <div class="text-sm text-slate-700">
+                        <p class="font-semibold mb-1">使用說明</p>
+                        <p>請手動上傳檔案，或從下方選單選擇一個線上範本載入。</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 檔案選擇與範本載入 -->
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        <i class="fas fa-upload mr-2"></i>上傳本機檔案
+                    </label>
+                    <input type="file" id="fileInput" accept=".html"
+                        class="block w-full text-sm text-slate-600
+                            file:mr-4 file:py-2.5 file:px-4
+                            file:rounded-lg file:border-0
+                            file:text-sm file:font-semibold
+                            file:bg-violet-100 file:text-violet-700
+                            hover:file:bg-violet-200 cursor-pointer
+                            border border-slate-200 rounded-lg
+                            focus:outline-none focus:ring-2 focus:ring-violet-500
+                        "/>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <div class="flex-1 border-t border-slate-200"></div>
+                    <span class="text-sm text-slate-500 font-semibold">或</span>
+                    <div class="flex-1 border-t border-slate-200"></div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        <i class="fas fa-cloud-download-alt mr-2"></i>從線上範本載入
+                    </label>
+                    <select id="urlSelector"
+                        class="w-full text-sm rounded-lg border-2 border-violet-200 bg-white text-slate-700 font-semibold p-3
+                            focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 cursor-pointer
+                            hover:border-violet-300 transition">
+                        <option value="" selected disabled>選擇範本...</option>
+                        <option value="01classtools.html">📚 剛好學</option>
+                        <option value="02classwhiteboard.html">🎨 剛好白板</option>
+                        <option value="03classppt.html">📊 剛好簡報</option>
+                        <option value="04classquiz.html">📝 剛好測</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 狀態訊息 -->
+            <div id="statusMessage" class="text-center text-sm h-6 flex items-center justify-center transition-all duration-300"></div>
+
+            <!-- Firebase Config 輸入框 -->
+            <div>
+                <label for="firebaseConfigInput" class="block text-sm font-semibold text-slate-700 mb-2">
+                    <i class="fas fa-code mr-2"></i>Firebase Config 內容
+                </label>
+                <textarea
+                    id="firebaseConfigInput"
+                    rows="12"
+                    class="w-full p-4 rounded-xl font-mono text-sm bg-slate-50
+                        border-2 border-slate-200
+                        focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500
+                        transition resize-none"
+                    placeholder="將您的 firebase config 物件內容貼在這裡...
+
+例如：
+apiKey: 'AIzaSy...',
+authDomain: '...',
+projectId: '...',
+storageBucket: '...',
+messagingSenderId: '...',
+appId: '...'"
+                ></textarea>
+            </div>
+
+            <!-- 下載按鈕 -->
+            <div class="flex justify-center pt-2">
+                <button id="downloadButton" disabled
+                    class="btn-hover px-8 py-3.5 bg-gradient-to-r from-pink-600 to-violet-600 text-white text-base font-bold rounded-xl shadow-lg
+                        disabled:from-slate-300 disabled:to-slate-400 disabled:cursor-not-allowed disabled:shadow-none
+                        flex items-center gap-2">
+                    <i class="fas fa-download"></i>
+                    <span>下載設定好的 HTML</span>
+                </button>
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center text-sm text-slate-600 mt-6 animate-fade-in-up" style="animation-delay: 0.2s;">
+            <p>made by <a href="https://sites.google.com/site/gangㄍgang/" target="_blank" class="text-violet-600 hover:text-violet-700 font-semibold hover:underline transition">阿剛老師</a></p>
+        </div>
+    </div>
+
+    <script>
+        // 宣告全域變數來儲存原始檔案內容
+        let originalHtmlContent = '';
+        let originalFileName = ''; // 用於儲存原始檔名
+        const fileInputElement = document.getElementById('fileInput');
+        const configTextarea = document.getElementById('firebaseConfigInput');
+        const downloadBtn = document.getElementById('downloadButton');
+        const statusMessageElement = document.getElementById('statusMessage');
+        const urlSelectorElement = document.getElementById('urlSelector');
+
+        // 用於顯示狀態訊息的輔助函式
+        const showStatus = (message, isError = false) => {
+            statusMessageElement.innerHTML = isError
+                ? `<i class="fas fa-exclamation-circle mr-2"></i><span>${message}</span>`
+                : `<i class="fas fa-check-circle mr-2"></i><span>${message}</span>`;
+            statusMessageElement.className = `text-center text-sm h-6 flex items-center justify-center transition-all duration-300 ${
+                isError
+                    ? 'text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-2'
+                    : 'text-green-700 bg-green-50 border border-green-200 rounded-lg px-4 py-2'
+            }`;
+
+            setTimeout(() => {
+                if (statusMessageElement.textContent.includes(message)) {
+                   statusMessageElement.textContent = '';
+                   statusMessageElement.className = 'text-center text-sm h-6 flex items-center justify-center transition-all duration-300';
+                }
+            }, 5000);
+        };
+
+        // 處理 HTML 內容的核心函式
+        const processHtmlContent = (htmlContent) => {
+            originalHtmlContent = htmlContent;
+            const regex = /(<script type="module">[\s\S]*?)(apiKey\s*:\s*.*(?:,)?[\s\S]*?appId\s*:\s*.*)([\s\S]*?<\/script>)/;
+            const match = originalHtmlContent.match(regex);
+
+            if (match && match[2]) {
+                configTextarea.value = match[2].trim();
+                downloadBtn.disabled = false;
+                showStatus('檔案讀取成功！已從 <script type="module"> 解析出設定。');
+            } else {
+                showStatus('在 <script type="module"> 中找不到指定的設定區塊。', true);
+                configTextarea.value = '';
+                downloadBtn.disabled = true;
+            }
+        };
+
+        // 監聽檔案選擇事件 (手動上傳)
+        fileInputElement.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            originalFileName = file.name.replace(/\.html$/, ''); // 儲存不含 .html 的檔名
+
+            urlSelectorElement.value = ""; // 清除下拉選單的選擇
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                processHtmlContent(e.target.result);
+            };
+            reader.readAsText(file);
+        });
+
+        // URL 到檔名的映射表（避免 emoji 造成檔名問題）
+        const urlToFileName = {
+            'https://kentxchang.github.io/classtool-share/index.html': '剛好學',
+            'https://kentxchang.github.io/whiteboard-share/index.html': '剛好白板',
+            'https://kentxchang.github.io/shareppt/index.html': '剛好簡報',
+            'https://kentxchang.github.io/aiquiztools/index.html': '剛好測'
+        };
+
+        // 監聽下拉選單選擇事件
+        urlSelectorElement.addEventListener('change', (event) => {
+            const selectedUrl = event.target.value;
+            if (!selectedUrl) return;
+
+            // 使用映射表取得檔名，避免 emoji 問題
+            originalFileName = urlToFileName[selectedUrl] || '範本';
+
+            fileInputElement.value = ""; // 清除檔案選擇器的值
+            showStatus(`正在從範本載入...`);
+
+            fetch(selectedUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`網路回應錯誤: ${response.statusText}`);
+                    }
+                    return response.text();
+                })
+                .then(htmlContent => {
+                    processHtmlContent(htmlContent);
+                })
+                .catch(error => {
+                    console.error('從 URL 載入失敗:', error);
+                    showStatus(`從範本載入失敗，請檢查網址或網路連線。`, true);
+                    configTextarea.value = '';
+                    downloadBtn.disabled = true;
+                });
+        });
+
+        // 監聽下載按鈕點擊事件
+        downloadBtn.addEventListener('click', () => {
+            const newConfigContent = configTextarea.value.trim();
+            if (!originalHtmlContent) {
+                showStatus('請先選擇一個 HTML 檔案。', true);
+                return;
+            }
+            if (!newConfigContent) {
+                showStatus('Firebase 設定內容不能為空！', true);
+                return;
+            }
+
+            // 替換 <script type="module"> 中的配置
+            const moduleRegex = /(<script type="module">[\s\S]*?)(apiKey\s*:\s*.*(?:,)?[\s\S]*?appId\s*:\s*.*)([\s\S]*?<\/script>)/;
+
+            if (!moduleRegex.test(originalHtmlContent)) {
+                showStatus('錯誤：在原始檔案中找不到可取代的設定區塊。', true);
+                return;
+            }
+
+            let updatedHtmlContent = originalHtmlContent.replace(moduleRegex, (match, beforeConfig, oldConfig, afterConfig) => {
+                return beforeConfig + newConfigContent + afterConfig;
+            });
+
+            // 同時替換主腳本中的 manualConfig 配置（如果存在）
+            // 匹配 const manualConfig = { ... }; 或 const manualConfig = window.__manualFirebaseConfig || { ... };
+            const mainConfigRegex = /(const manualConfig\s*=\s*(?:window\.__manualFirebaseConfig\s*\|\|\s*)?\{[\s]*)(apiKey\s*:\s*.*(?:,)?[\s\S]*?appId\s*:\s*.*)([\s]*\})/;
+
+            if (mainConfigRegex.test(updatedHtmlContent)) {
+                updatedHtmlContent = updatedHtmlContent.replace(mainConfigRegex, (match, before, oldConfig, after) => {
+                    return before + newConfigContent + after;
+                });
+                console.log('已同時更新主腳本中的 manualConfig 配置');
+            }
+
+            const blob = new Blob([updatedHtmlContent], { type: 'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${originalFileName || 'download'}_已設定.html`; // 使用儲存的檔名
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showStatus('下載成功！');
+        });
+    </script>
+</body>
+</html>
