@@ -1813,7 +1813,7 @@
         
         <!-- Footer -->
         <footer class="bg-white/80 backdrop-blur-md border-t border-slate-200 py-4 text-center text-sm text-slate-500">
-            Made by <a href="https://kentxchang.blogspot.com/" target="_blank" class="text-violet-600 hover:underline font-bold">阿剛老師 V1.5.2</a>
+            Made by <a href="https://kentxchang.blogspot.com/" target="_blank" class="text-violet-600 hover:underline font-bold">阿剛老師 V1.5.3</a>
         </footer>
     </div>
 
@@ -2304,7 +2304,7 @@ const __firebaseConfig = {
   apiKey: "demo",
   authDomain: "demo",
   projectId: "demo",
-  storageBucket: "demoV1.5.2",
+  storageBucket: "demoV1.5.3",
   messagingSenderId: "demo",
   appId: "demo"
 };
@@ -2337,7 +2337,7 @@ createApp({
   apiKey: "demo",
   authDomain: "demo",
   projectId: "demo",
-  storageBucket: "demoV1.5.2",
+  storageBucket: "demoV1.5.3",
   messagingSenderId: "demo",
   appId: "demo"
         };
@@ -2495,6 +2495,7 @@ createApp({
 
         // --- 更新日誌 ---
         const updateLog = ref([
+            { date: '2026/04/29', desc: '分享連結改為優先使用 TinyURL 產生短網址。' },
             { date: '2025/12/04', desc: '新增學生專用分享連結，開啟後將隱藏教師入口與設定；修復 iPad 螢光筆功能；簡化 AI API 設定。' },
             { date: '2025/12/04', desc: '教師儀表板增加顯示目前啟用題庫及結束測驗按鈕。' },
             { date: '2025/12/04', desc: '新增題庫內容編輯及刪除單題功能。' },
@@ -2751,13 +2752,37 @@ createApp({
             return key ? `${baseUrl}?key=${key}` : baseUrl;
         };
 
+        const generateShortUrl = async (longUrl) => {
+            try {
+                const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`);
+                const shortUrl = await response.text();
+
+                if (shortUrl && shortUrl.startsWith('http')) {
+                    console.log('TinyURL 短網址生成成功:', shortUrl);
+                    return shortUrl;
+                }
+            } catch (error) {
+                console.warn('TinyURL 短網址生成失敗，使用原始網址:', error);
+            }
+
+            return longUrl;
+        };
+
         const generateShareUrls = (config) => {
             const jsonStr = JSON.stringify(config);
             const b64 = btoa(jsonStr);
             const baseUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}`;
-            
-            shareUrl.value = `${baseUrl}?config=${b64}`;
-            studentShareUrl.value = `${baseUrl}?config=${b64}&mode=student`;
+            const teacherLongUrl = `${baseUrl}?config=${b64}`;
+            const studentLongUrl = `${baseUrl}?config=${b64}&mode=student`;
+
+            shareUrl.value = teacherLongUrl;
+            studentShareUrl.value = studentLongUrl;
+
+            const isHttpProtocol = window.location.protocol === 'http:' || window.location.protocol === 'https:';
+            if (isHttpProtocol) {
+                generateShortUrl(teacherLongUrl).then(url => { shareUrl.value = url; });
+                generateShortUrl(studentLongUrl).then(url => { studentShareUrl.value = url; });
+            }
         };
 
         const toggleSettings = () => {
