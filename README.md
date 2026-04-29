@@ -88,6 +88,29 @@
 
 `index.html` 內建 Firebase 圖文設定教學。多數主工具也有自己的 Firebase 設定視窗。
 
+### 剛好學、白板、簡報的設定共用
+
+`01classtools.html`、`02classwhiteboard.html`、`03classppt.html` 這三個工具都使用相同的瀏覽器本機儲存鍵值 `firebaseConfig` 保存 Firebase 設定。因此在符合條件的情況下，只要在其中任一個工具的「Firebase 設定」介面貼上 Firebase 六行設定值並套用，另外兩個工具通常也會自動讀取同一份設定。
+
+也就是說：
+
+- 剛好學會將設定存到 `localStorage` 的 `firebaseConfig`。
+- 剛好白板會讀取與儲存同一個 `firebaseConfig`。
+- 剛好簡報也會從 `localStorage.getItem('firebaseConfig')` 自動套用設定。
+
+這個共用機制成立的前提是三個 HTML 以「同一個瀏覽器、同一個網址來源」開啟。實務上，如果老師使用同一組 GitHub Pages 網址、同一個瀏覽器分別開啟剛好學、剛好白板與剛好簡報，通常只需要設定一次通用 Firebase 專案。
+
+以下情況可能不會共用設定：
+
+- 使用不同網域或不同網站來源開啟。
+- 使用不同瀏覽器，例如 Chrome 與 Safari 分開使用。
+- 使用無痕模式或隱私瀏覽模式。
+- 瀏覽器已清除網站資料或 localStorage。
+- 直接用 `file://` 開啟本機 HTML，且瀏覽器對不同本機路徑採用不同儲存來源。
+- 學生或老師曾經連過其他老師的專用連結，導致本機仍保留舊的 `firebaseConfig`。
+
+若三個工具沒有自動套用同一份設定，請在目前使用的工具中重新貼上 Firebase 六行設定值，或先清除本地 Firebase 設定後再重新掃描/開啟老師提供的含設定連結。
+
 ### Firebase Config 貼上格式
 
 通常只需要貼上 `firebaseConfig` 大括號中的六行內容：
