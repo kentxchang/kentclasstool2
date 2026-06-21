@@ -4,16 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>剛好系列教學影片中心</title>
-    <meta name="description" content="阿剛老師剛好系列四套軟體的教學影片中心，依功能主題分段學習，快速找到需要的操作教學。">
+    <meta name="description" content="阿剛老師剛好系列課堂互動整合大禮包的教學影片中心，依功能主題分段學習，快速找到需要的操作教學。">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Varela+Round&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Anime.js for premium micro-animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+
     <style>
         :root {
-            --ink: #1f2937;
-            --muted: #64748b;
+            --ink: #0f172a;
+            --muted: #475569;
         }
         * {
             box-sizing: border-box;
@@ -22,50 +26,72 @@
             font-family: 'Varela Round', 'Noto Sans TC', sans-serif;
             color: var(--ink);
             background:
-                radial-gradient(circle at 12% 12%, rgba(255, 210, 63, 0.28), transparent 28rem),
-                radial-gradient(circle at 88% 18%, rgba(45, 212, 191, 0.24), transparent 26rem),
-                radial-gradient(circle at 52% 90%, rgba(251, 113, 133, 0.18), transparent 30rem),
-                linear-gradient(135deg, #fffdf7 0%, #eef8ff 48%, #fff5fb 100%);
+                radial-gradient(circle at 12% 12%, rgba(251, 113, 133, 0.15), transparent 30rem),
+                radial-gradient(circle at 88% 18%, rgba(139, 92, 246, 0.15), transparent 28rem),
+                radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.08), transparent 35rem),
+                linear-gradient(135deg, #f8fafc 0%, #eff6ff 50%, #faf5ff 100%);
             min-height: 100vh;
+            overflow-x: hidden;
         }
         .hero-grid {
             background-image:
-                linear-gradient(rgba(15, 23, 42, 0.055) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(15, 23, 42, 0.055) 1px, transparent 1px);
-            background-size: 34px 34px;
+                linear-gradient(rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
         }
-        .soft-card {
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.1);
-            backdrop-filter: blur(18px);
+        .glass-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.08);
+        }
+        .text-gradient {
+            background: linear-gradient(135deg, #3b82f6, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .text-gradient-purple {
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        /* Tab styles */
+        .tool-tab {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .tool-tab:hover:not([aria-selected="true"]) {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 10px 20px -10px rgba(15, 23, 42, 0.1);
         }
         .tool-tab[aria-selected="true"] {
             color: white;
-            box-shadow: 0 14px 28px rgba(15, 23, 42, 0.18);
+            box-shadow: 0 12px 25px -5px rgba(139, 92, 246, 0.4);
             transform: translateY(-2px);
         }
+        /* Episode card styles */
         .episode-card {
-            transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .episode-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 16px 34px rgba(15, 23, 42, 0.12);
+            transform: translateY(-4px) scale(1.005);
+            box-shadow: 0 20px 30px -10px rgba(15, 23, 42, 0.08);
+            border-color: rgba(139, 92, 246, 0.3);
         }
         .video-link {
-            width: 2.75rem;
-            height: 2.75rem;
-            border-radius: 999px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            flex: 0 0 auto;
-            transition: transform .18s ease, opacity .18s ease;
-        }
-        .video-link[href="#"] {
-            cursor: default;
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s;
         }
         .video-link:not([href="#"]):hover {
-            transform: scale(1.08);
+            transform: scale(1.15);
+        }
+        /* Badge Animation */
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.85; transform: scale(0.97); }
+        }
+        .animate-pulse-slow {
+            animation: pulse-slow 3s ease-in-out infinite;
         }
         @media print {
             body {
@@ -81,48 +107,54 @@
         }
     </style>
 </head>
-<body>
-    <header class="hero-grid">
-        <div class="max-w-7xl mx-auto px-5 py-8 md:py-12">
-            <nav class="no-print flex flex-wrap items-center justify-between gap-3 mb-10">
-                <a href="index.html" class="inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-sm font-bold text-slate-700 shadow-sm border border-white hover:bg-white">
-                    <i class="fa-solid fa-arrow-left"></i>
+<body class="min-h-screen flex flex-col">
+    <header class="hero-grid relative overflow-hidden pb-6">
+        <!-- Decorative blobs -->
+        <div class="absolute top-[-10%] left-[-10%] w-[40rem] h-[40rem] bg-rose-200/20 rounded-full blur-[80px] -z-10 pointer-events-none"></div>
+        <div class="absolute bottom-0 right-[-10%] w-[35rem] h-[35rem] bg-violet-200/20 rounded-full blur-[80px] -z-10 pointer-events-none"></div>
+
+        <div class="max-w-7xl mx-auto px-5 pt-8 pb-4">
+            <nav class="no-print flex items-center justify-between gap-3 mb-8">
+                <a href="index.html" class="group inline-flex items-center gap-2 rounded-full bg-white/90 px-5 py-2.5 text-sm font-bold text-slate-700 shadow-md border border-white hover:bg-white transition-all transform hover:scale-[1.02]">
+                    <i class="fa-solid fa-arrow-left transition-transform group-hover:-translate-x-1"></i>
                     回到工具箱首頁
                 </a>
             </nav>
 
-            <div class="grid lg:grid-cols-[1.15fr_.85fr] gap-8 items-center">
+            <div class="grid lg:grid-cols-[1.2fr_.8fr] gap-8 items-center">
                 <div>
-                    <p class="inline-flex items-center gap-2 rounded-full bg-white/85 px-4 py-2 text-sm font-black text-rose-600 shadow-sm border border-white mb-5">
+                    <p class="animate-pulse-slow inline-flex items-center gap-2 rounded-full bg-white/90 px-4 py-2 text-sm font-black text-rose-500 shadow-sm border border-rose-100 mb-5">
                         <i class="fa-solid fa-clapperboard"></i>
-                        四套軟體教學影片中心
+                        剛好系列全新整合版教學中心
                     </p>
-                    <h1 class="text-4xl md:text-6xl font-black leading-tight tracking-normal text-slate-900">
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-black leading-tight tracking-normal text-slate-900">
                         跟著短影片<br>
-                        快速學會剛好系列
+                        快速掌握<span class="text-gradient font-black">剛好學</span>與<span class="text-gradient-purple font-black">剛好測</span>
                     </h1>
-                    <p class="mt-5 max-w-2xl text-lg leading-8 text-slate-600">
-                        依照「第一次上手、教師操作、學生體驗、資料整理、課堂應用」的順序安排。你可以選擇想學的軟體，再點開需要的主題影片，分段掌握每個課堂互動功能。
+                    <p class="mt-5 max-w-2xl text-base md:text-lg leading-relaxed text-slate-600">
+                        為了解決課堂操作的痛點，<strong>剛好白板</strong>與<strong>剛好簡報</strong>已完全整合進入<strong>剛好學</strong>中。你可以依照下方的分類與段落，有系統地完成自主學習。
                     </p>
                 </div>
 
-                <div class="soft-card rounded-[1.75rem] bg-white/75 p-6">
-                    <div class="grid grid-cols-2 gap-3 text-center">
-                        <div class="rounded-2xl bg-pink-50 p-4">
-                            <div class="text-3xl font-black text-pink-500" id="totalEpisodes">0</div>
-                            <div class="text-sm font-bold text-slate-500">分段小主題</div>
+                <div class="glass-card rounded-3xl p-6 relative overflow-hidden border border-white">
+                    <div class="grid grid-cols-2 gap-4 text-center">
+                        <div class="rounded-2xl bg-violet-50/50 p-4 border border-violet-100/50">
+                            <div class="text-4xl font-black text-violet-600" id="totalEpisodes">0</div>
+                            <div class="text-xs font-bold text-slate-500 mt-1">分段小主題</div>
                         </div>
-                        <div class="rounded-2xl bg-emerald-50 p-4">
-                            <div class="text-3xl font-black text-emerald-600">3-5</div>
-                            <div class="text-sm font-bold text-slate-500">分鐘短教學</div>
+                        <div class="rounded-2xl bg-emerald-50/50 p-4 border border-emerald-100/50">
+                            <div class="text-4xl font-black text-emerald-600">3-5</div>
+                            <div class="text-xs font-bold text-slate-500 mt-1">分鐘短教學</div>
                         </div>
                     </div>
-                    <div class="mt-5 rounded-2xl bg-slate-900 p-5 text-white">
-                        <div class="flex items-center gap-3">
-                            <i class="fa-solid fa-route text-yellow-300 text-2xl"></i>
+                    <div class="mt-5 rounded-2xl bg-slate-900 p-5 text-white shadow-lg">
+                        <div class="flex items-start gap-3">
+                            <div class="bg-violet-500/20 p-2 rounded-xl text-yellow-300">
+                                <i class="fa-solid fa-route text-xl"></i>
+                            </div>
                             <div>
-                                <p class="font-black">照需求挑影片</p>
-                                <p class="text-sm text-slate-300">每個主題旁都有影片圖示；可以從入門一路看，也可以直接跳到正在使用的功能。</p>
+                                <p class="font-bold text-sm text-yellow-300">功能強大，無縫學習</p>
+                                <p class="text-xs text-slate-300 leading-relaxed mt-1">白板與簡報已經是「剛好學」的一部分囉！免去了重複設定與跳轉網頁的繁雜，跟著影片即可輕鬆上手。</p>
                             </div>
                         </div>
                     </div>
@@ -131,103 +163,123 @@
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-5 pb-16">
-        <section class="no-print sticky top-0 z-20 -mx-5 px-5 py-4 bg-white/70 backdrop-blur-xl border-y border-white/70">
-            <div id="toolTabs" class="grid grid-cols-2 lg:grid-cols-4 gap-3"></div>
+    <main class="max-w-7xl mx-auto px-5 pb-16 flex-grow w-full">
+        <!-- Tab Navigation -->
+        <section class="no-print sticky top-0 z-20 -mx-5 px-5 py-4 bg-slate-50/40 backdrop-blur-xl border-y border-slate-200/50 mb-6">
+            <div id="toolTabs" class="grid grid-cols-1 md:grid-cols-3 gap-3"></div>
         </section>
 
-        <section id="toolIntro" class="soft-card mt-8 rounded-[1.75rem] bg-white/78 p-6 md:p-8"></section>
+        <!-- Search Bar -->
+        <section class="no-print mb-6">
+            <div class="relative max-w-lg mx-auto">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+                <input 
+                    type="text" 
+                    id="searchQuery" 
+                    placeholder="搜尋教學主題或功能關鍵字... (例如: 選擇題, 畫筆, PDF)" 
+                    class="w-full pl-11 pr-4 py-3 bg-white/90 border border-slate-200 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 text-sm transition"
+                >
+                <button 
+                    id="clearSearch" 
+                    class="hidden absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600"
+                    aria-label="清除搜尋"
+                >
+                    <i class="fa-solid fa-circle-xmark"></i>
+                </button>
+            </div>
+        </section>
 
-        <section id="sharedFirebaseInfo" class="hidden soft-card mt-6 rounded-[1.75rem] bg-white/82 p-6 md:p-7"></section>
+        <!-- Tool Introduction Card -->
+        <section id="toolIntro" class="glass-card rounded-3xl p-6 md:p-8 mb-6"></section>
 
+        <!-- Shared Firebase Configuration Explanation -->
+        <section id="sharedFirebaseInfo" class="hidden glass-card rounded-3xl p-6 md:p-8 mb-6 border border-emerald-100 bg-emerald-50/10"></section>
+
+        <!-- Episodes List -->
         <section class="mt-8">
-            <div class="flex items-center justify-between gap-4 mb-4">
-                <h2 class="text-2xl md:text-3xl font-black text-slate-900">教學主題</h2>
-                <span id="episodeCount" class="rounded-full bg-white/85 px-4 py-2 text-sm font-bold text-slate-600 shadow-sm"></span>
+            <div class="flex items-center justify-between gap-4 mb-6">
+                <h2 class="text-2xl font-black text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-folder-open text-violet-500 text-xl"></i>
+                    教學影片清單
+                </h2>
+                <span id="episodeCount" class="rounded-full bg-white px-4 py-2 text-xs md:text-sm font-bold text-slate-600 shadow-sm border border-slate-100"></span>
             </div>
             <div id="episodes" class="grid gap-4"></div>
+            
+            <!-- Empty state -->
+            <div id="emptyState" class="hidden text-center py-16 glass-card rounded-3xl">
+                <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto text-slate-400 text-2xl mb-4">
+                    <i class="fa-solid fa-video-slash"></i>
+                </div>
+                <h3 class="text-lg font-black text-slate-700">找不到符合搜尋條件的影片</h3>
+                <p class="text-sm text-slate-500 mt-1">請嘗試輸入其他關鍵字，或切換至不同分組標籤試試看。</p>
+            </div>
         </section>
     </main>
+
+    <footer class="bg-white border-t border-slate-200 py-8 no-print mt-auto">
+        <div class="max-w-7xl mx-auto px-5 text-center">
+            <p class="text-slate-600 text-sm mb-2">Made with <i class="fa-solid fa-heart text-red-500 mx-1"></i> by <a href="#" class="font-bold text-indigo-600 hover:underline">阿剛老師</a></p>
+            <p class="text-xs text-slate-400">
+                本作品採用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh_TW" target="_blank" class="hover:text-indigo-500 underline">CC BY-NC-SA 4.0 創用CC授權</a>
+            </p>
+        </div>
+    </footer>
 
     <script>
         const tutorialModules = [
             {
-                id: "classtools",
-                name: "剛好學",
+                id: "classtools_basic",
+                name: "剛好學：課堂互動篇",
                 file: "01classtools.html",
                 icon: "fa-list-check",
                 color: "#ec4899",
-                tint: "bg-pink-50",
+                tint: "bg-pink-50/70",
                 text: "text-pink-600",
-                intro: "全能型課堂互動中心，從開教室到收作品，一步一步帶你完成。",
-                goal: "讓老師能快速建立教室、選擇互動模式、收集學生回應並完成課堂回饋。",
+                intro: "全能型課堂活動中心，提供 12 種豐富的即時互動模式。",
+                goal: "學習如何快速建立教室、發送互動題目（是非、選擇、文字、繪圖、錄音、便利貼等）並即時整理與展示學生回應。",
                 episodes: [
                     { title: "第一次開啟與 Firebase 設定檢查", focus: "確認環境、進入工具、查看設定狀態與基本介面位置。", videoUrl: "" },
                     { title: "教師端建立教室與學生加入流程", focus: "建立教室代碼、學生輸入姓名加入、教師端確認在線名單。", videoUrl: "" },
                     { title: "是非題與選擇題的最快上課法", focus: "切換題型、發題、看統計、重置下一題。", videoUrl: "" },
                     { title: "自訂選擇題與正確答案設定", focus: "建立題目、設定選項、標記答案、展示答題結果。", videoUrl: "" },
-                    { title: "文字題、文字雲與課堂討論整理", focus: "收集短答、生成文字雲、下載文字回應。", videoUrl: "" },
-                    { title: "繪圖題與背景圖片派送", focus: "上傳背景、學生畫記、教師端瀏覽作品。", videoUrl: "" },
-                    { title: "錄音題與學生口說作品收集", focus: "學生錄音、送出、教師端播放與下載。", videoUrl: "" },
-                    { title: "便利貼牆與圖片作品展示", focus: "學生送出便利貼、整理版面、進行全班分享。", videoUrl: "" },
-                    { title: "排序題與配對題活動設計", focus: "建立項目、學生拖曳作答、教師端查看完成狀態。", videoUrl: "" },
-                    { title: "閱讀測驗與畫記工具操作", focus: "貼上文本、學生閱讀作答、教師端查看答案與畫記。", videoUrl: "" },
-                    { title: "搶答、快速投票與專注力遊戲", focus: "示範三種快節奏互動，說明適合的課堂時機。", videoUrl: "" },
-                    { title: "AI 出題與文字分析設定", focus: "填入 API Key、產生題目、整理文字題回饋。", videoUrl: "" },
-                    { title: "匯出資料、清理課堂與下次再用", focus: "下載回應、重置活動、保留或清除教室資料。", videoUrl: "" }
+                    { title: "文字題、文字雲與課堂討論整理", focus: "收集學生短答、生成視覺化文字雲、下載並整理文字回應。", videoUrl: "" },
+                    { title: "繪圖題與背景圖片派送", focus: "上傳背景底圖、學生接收並在載具上畫記、教師端即時瀏覽與點評。", videoUrl: "" },
+                    { title: "錄音題與學生口說作品收集", focus: "學生端錄製音檔、送出、教師端在監看畫面中點擊播放與下載。", videoUrl: "" },
+                    { title: "便利貼牆與圖片作品展示", focus: "學生送出便利貼或上傳圖片、教師分類與整理版面、進行全班分享。", videoUrl: "" },
+                    { title: "排序題與配對題活動設計", focus: "建立排序/配對項目、學生拖曳作答、教師端查看學生的作答完成狀態。", videoUrl: "" },
+                    { title: "閱讀測驗與畫記工具操作", focus: "貼上閱讀文本、學生於載具進行閱讀作答與畫記、教師端即時收集與批改。", videoUrl: "" },
+                    { title: "搶答、快速投票與專注力遊戲", focus: "示範三種快節奏的課堂互動，說明適合與學生進行互動的黃金時機。", videoUrl: "" },
+                    { title: "AI 出題與文字分析功能設定", focus: "在設定中填入 AI API Key、自動產生多樣化題目、快速整理文字題回應。", videoUrl: "" },
+                    { title: "匯出資料、清理課堂與下次再用", focus: "下載學生作答數據、重置本堂活動、保留或清除雲端資料庫紀錄。", videoUrl: "" }
                 ]
             },
             {
-                id: "classwhiteboard",
-                name: "剛好白板",
-                file: "02classwhiteboard.html",
-                icon: "fa-pen-to-square",
-                color: "#f59e0b",
-                tint: "bg-amber-50",
-                text: "text-amber-600",
-                intro: "多人同步白板，從基本畫布工具一路學到分組協作與備份還原。",
-                goal: "讓老師能建立白板、管理學生權限、完成共同創作並匯出成果。",
-                episodes: [
-                    { title: "白板入口、教師登入與白板 ID", focus: "輸入密碼、建立或接管白板、介紹學生加入方式。", videoUrl: "" },
-                    { title: "學生加入與線上參與者確認", focus: "學生輸入姓名與白板 ID，教師端查看在線名單。", videoUrl: "" },
-                    { title: "畫布移動、縮放與選取基本功", focus: "示範移動畫布、縮放滑桿、選取與移動物件。", videoUrl: "" },
-                    { title: "畫筆、顏色與筆寬設定", focus: "切換畫筆、調整顏色與筆寬，建立手寫示範。", videoUrl: "" },
-                    { title: "圖形工具：箭頭、圓形、矩形", focus: "插入圖形、調整大小位置、用於講解標註。", videoUrl: "" },
-                    { title: "便利貼與文字討論板", focus: "新增不同顏色便利貼，整理腦力激盪結果。", videoUrl: "" },
-                    { title: "插入圖片與課堂素材標註", focus: "上傳圖片、調整位置、讓學生共同標註。", videoUrl: "" },
-                    { title: "插入 PDF 與選取頁面", focus: "匯入講義 PDF、選頁、放到白板中操作。", videoUrl: "" },
-                    { title: "多頁白板與頁面管理", focus: "新增頁面、切換頁面、整理不同小組或任務。", videoUrl: "" },
-                    { title: "鎖定學生與編輯權限控管", focus: "鎖定工具、開放或限制編輯所有物件。", videoUrl: "" },
-                    { title: "顯示作者、踢出學生與秩序管理", focus: "查看物件作者、管理參與者、處理誤入學生。", videoUrl: "" },
-                    { title: "匯出 PDF 與作品保存", focus: "將白板輸出成 PDF，適合課後分享與留存。", videoUrl: "" },
-                    { title: "匯出 JSON、匯入還原與清理資料", focus: "備份白板、下次匯入、刪除單一白板或清空資料。", videoUrl: "" }
-                ]
-            },
-            {
-                id: "classppt",
-                name: "剛好簡報",
-                file: "03classppt.html",
-                icon: "fa-presentation-screen",
+                id: "classtools_advanced",
+                name: "剛好學：白板與簡報篇",
+                file: "01classtools.html",
+                icon: "fa-chalkboard-user",
                 color: "#8b5cf6",
-                tint: "bg-violet-50",
+                tint: "bg-violet-50/70",
                 text: "text-violet-600",
-                intro: "即時同步簡報工具，學會 PDF 轉投影片、每頁互動模式與學生回應收集。",
-                goal: "讓老師能把 PDF 簡報變成互動課程，並即時掌握學生回應。",
+                intro: "剛好學內建功能！多人同步協作白板，與 PDF 投影片同步簡報系統。",
+                goal: "學習如何直接在剛好學（01classtools.html）中啟用同步白板與同步簡報，無須切換其他網頁即可進行畫面同步與多人師生協作。",
                 episodes: [
-                    { title: "簡報工具入口與 Firebase 設定確認", focus: "進入工具、檢查設定、說明同步簡報的基本概念。", videoUrl: "" },
-                    { title: "教師登入、新建簡報與匯入 JSON", focus: "輸入密碼、建立新簡報或載入既有備份。", videoUrl: "" },
-                    { title: "上傳 PDF 並轉成投影片", focus: "選擇 PDF、等待轉換、檢查每頁縮圖。", videoUrl: "" },
-                    { title: "縮圖導航與上一頁下一頁操作", focus: "教師端切換投影片，說明學生端會跟隨同步。", videoUrl: "" },
-                    { title: "開始同步、停止同步與學生加入", focus: "產生學生連結或 QR Code，學生輸入姓名加入。", videoUrl: "" },
-                    { title: "一般簡報模式與雷射筆同步", focus: "播放投影片、使用雷射筆、控制全班視線。", videoUrl: "" },
-                    { title: "塗鴉互動模式設定與回收", focus: "設定頁面為塗鴉，學生畫記並送出作品。", videoUrl: "" },
-                    { title: "文字回應模式與即時討論", focus: "設定文字題頁面，收集學生短答與想法。", videoUrl: "" },
-                    { title: "選擇題模式與正確答案", focus: "設定 1-4 或 A-D 選項，查看作答統計。", videoUrl: "" },
-                    { title: "插入新頁：純色頁與圖片頁", focus: "臨時加入討論頁、活動頁或補充圖片。", videoUrl: "" },
-                    { title: "每頁網址與學生端連結圖示", focus: "為投影片設定延伸連結，讓學生端可點擊。", videoUrl: "" },
-                    { title: "查看學生回應與最多四件作品比較", focus: "瀏覽回應、選取作品比較、投影分享。", videoUrl: "" },
-                    { title: "下載全部回應與重置回應", focus: "保存學生作品，重新收作答或進行第二輪。", videoUrl: "" },
-                    { title: "匯出簡報 JSON、結束簡報與雲端清理", focus: "備份課程、下次恢復、課後刪除雲端資料。", videoUrl: "" }
+                    { title: "在剛好學中啟用同步白板與基本設定", focus: "直接於剛好學的主畫面上開啟「同步白板」、說明學生端加入方式與在線名單確認。", videoUrl: "" },
+                    { title: "白板畫布移動、縮放與選取基本功", focus: "示範如何移動畫布、調整縮放比例滑桿、以及選取並移動已畫物件。", videoUrl: "" },
+                    { title: "白板畫筆、顏色、筆寬與基本圖形標註", focus: "切換畫筆、調整顏色與筆寬，並使用矩形、圓形或箭頭進行重點圈記。", videoUrl: "" },
+                    { title: "白板便利貼牆與文字討論協作", focus: "新增並任意調整便利貼顏色、擺放位置，適合腦力激盪與小組協作。", videoUrl: "" },
+                    { title: "白板圖片匯入與 PDF 多頁面管理", focus: "匯入課堂教材圖片、上傳 PDF 講義背景，並進行多頁面切換與編修。", videoUrl: "" },
+                    { title: "白板權限控管：鎖定學生畫面與物件權限", focus: "老師端鎖定學生畫布防止塗鴉、管理成員，並控制物件的防刪除與鎖定。", videoUrl: "" },
+                    { title: "白板備份還原與匯出 PDF 作品保存", focus: "將白板畫布備份為 JSON 檔案，或將所有頁面輸出為 PDF 文件留存。", videoUrl: "" },
+                    { title: "在剛好學中啟用同步簡報與 PDF 投影片上傳", focus: "在剛好學主畫面開啟「同步簡報」、上傳簡報 PDF 檔案並自動生成每頁縮圖。", videoUrl: "" },
+                    { title: "簡報同步播放、雷射筆同步與換頁操作", focus: "教師端切換投影片、使用紅點雷射筆同步指引，學生裝置即時同步跟隨。", videoUrl: "" },
+                    { title: "簡報塗鴉互動模式設定與回收", focus: "一鍵將目前簡報投影片轉為塗鴉題，學生在投影片上畫記並即時回收教師端。", videoUrl: "" },
+                    { title: "簡報文字問答與選擇題即時統計", focus: "隨時在投影片頁面插入文字短答或選擇題，並在教師端即時統計回答比例與分佈。", videoUrl: "" },
+                    { title: "查看學生簡報作答與作品對比分享", focus: "瀏覽所有學生的作答畫面，並可選取最多四位學生的投影片作品進行同屏對比點評。", videoUrl: "" },
+                    { title: "簡報 JSON 備份、結束簡報與雲端清理", focus: "下載簡報課程設計備份、結束簡報同步，並清除雲端暫存的資料庫紀錄。", videoUrl: "" }
                 ]
             },
             {
@@ -236,7 +288,7 @@
                 file: "04classquiz.html",
                 icon: "fa-circle-question",
                 color: "#3b82f6",
-                tint: "bg-blue-50",
+                tint: "bg-blue-50/70",
                 text: "text-blue-600",
                 intro: "AI 題庫與測驗系統，依照題庫建立、測驗啟用、成績分析逐步學習。",
                 goal: "讓老師能建立題庫、啟用測驗、讓學生作答，並讀懂分析報表。",
@@ -264,53 +316,95 @@
         const sharedFirebaseInfo = document.getElementById("sharedFirebaseInfo");
         const episodesContainer = document.getElementById("episodes");
         const episodeCount = document.getElementById("episodeCount");
-        const totalEpisodes = document.getElementById("totalEpisodes");
-        const sharedFirebaseToolIds = new Set(["classtools", "classwhiteboard", "classppt"]);
+        const totalEpisodesEl = document.getElementById("totalEpisodes");
+        const emptyState = document.getElementById("emptyState");
+        const searchQuery = document.getElementById("searchQuery");
+        const clearSearchBtn = document.getElementById("clearSearch");
+
+        const sharedFirebaseToolIds = new Set(["classtools_basic", "classtools_advanced"]);
         let currentToolId = tutorialModules[0].id;
+        let activeQuery = "";
+
+        // Number count-up animation
+        function animateCount(el, targetValue) {
+            if (!el) return;
+            const obj = { value: 0 };
+            anime({
+                targets: obj,
+                value: targetValue,
+                round: 1,
+                easing: 'easeOutExpo',
+                duration: 1500,
+                update: function() {
+                    el.textContent = obj.value;
+                }
+            });
+        }
+
+        // Card Domino Stagger entrance animation
+        function animateEpisodesEntrance() {
+            const cards = document.querySelectorAll('.episode-card');
+            cards.forEach(c => c.style.opacity = '0');
+            anime({
+                targets: '.episode-card',
+                opacity: [0, 1],
+                translateY: [20, 0],
+                delay: anime.stagger(40),
+                easing: 'easeOutQuad',
+                duration: 400
+            });
+        }
 
         function renderTabs() {
-            tabContainer.innerHTML = tutorialModules.map((tool) => `
-                <button
-                    type="button"
-                    class="tool-tab rounded-2xl bg-white px-4 py-4 text-left font-black text-slate-700 border border-white transition"
-                    style="${tool.id === currentToolId ? `background:${tool.color}` : ""}"
-                    aria-selected="${tool.id === currentToolId}"
-                    data-tool="${tool.id}">
-                    <span class="flex items-center gap-3">
-                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl ${tool.tint} ${tool.text}">
-                            <i class="fa-solid ${tool.icon}"></i>
+            tabContainer.innerHTML = tutorialModules.map((tool) => {
+                const isActive = tool.id === currentToolId;
+                return `
+                    <button
+                        type="button"
+                        class="tool-tab rounded-2xl px-5 py-4 text-left font-black text-slate-700 border border-slate-200/60 transition-all flex items-center justify-between group ${isActive ? 'bg-gradient-to-r text-white border-transparent' : 'bg-white shadow-sm'}"
+                        style="${isActive ? `background: linear-gradient(135deg, ${tool.color}, #f43f5e)` : ''}"
+                        aria-selected="${isActive}"
+                        data-tool="${tool.id}">
+                        <span class="flex items-center gap-3">
+                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl transition-all ${isActive ? 'bg-white/20 text-white' : `${tool.tint} ${tool.text} group-hover:scale-105`}">
+                                <i class="fa-solid ${tool.icon}"></i>
+                            </span>
+                            <span>
+                                <span class="block text-sm md:text-base">${tool.name}</span>
+                                <span class="block text-xxs md:text-xs font-bold ${isActive ? 'text-white/80' : 'text-slate-400'}">${tool.episodes.length} 段影片</span>
+                            </span>
                         </span>
-                        <span>
-                            <span class="block">${tool.name}</span>
-                            <span class="block text-xs font-bold opacity-70">${tool.episodes.length} 段影片</span>
-                        </span>
-                    </span>
-                </button>
-            `).join("");
+                        <i class="fa-solid fa-chevron-right text-xs opacity-0 group-hover:opacity-100 transition-opacity ${isActive ? 'text-white' : 'text-slate-400'}"></i>
+                    </button>
+                `;
+            }).join("");
 
             document.querySelectorAll(".tool-tab").forEach((button) => {
                 button.addEventListener("click", () => {
                     currentToolId = button.dataset.tool;
                     renderPage();
-                    window.scrollTo({ top: document.querySelector("main").offsetTop - 10, behavior: "smooth" });
+                    // Clear search on tab switch
+                    searchQuery.value = "";
+                    activeQuery = "";
+                    clearSearchBtn.classList.add("hidden");
                 });
             });
         }
 
         function renderIntro(tool) {
             introContainer.innerHTML = `
-                <div class="grid md:grid-cols-[auto_1fr_auto] gap-5 items-center">
-                    <div class="h-20 w-20 rounded-3xl ${tool.tint} ${tool.text} flex items-center justify-center text-4xl">
+                <div class="grid md:grid-cols-[auto_1fr_auto] gap-6 items-center">
+                    <div class="h-20 w-20 rounded-3xl ${tool.tint} ${tool.text} flex items-center justify-center text-4xl shadow-inner">
                         <i class="fa-solid ${tool.icon}"></i>
                     </div>
                     <div>
-                        <p class="text-sm font-black ${tool.text} mb-1">教學主題：${tool.name}</p>
-                        <h2 class="text-3xl font-black text-slate-900">${tool.intro}</h2>
-                        <p class="mt-3 text-slate-600 leading-7">${tool.goal}</p>
+                        <p class="text-xs font-black ${tool.text} uppercase tracking-wider mb-1">教學群組：${tool.name}</p>
+                        <h2 class="text-2xl md:text-3xl font-black text-slate-800 leading-snug">${tool.intro}</h2>
+                        <p class="mt-2 text-slate-500 leading-relaxed text-sm md:text-base">${tool.goal}</p>
                     </div>
-                    <a href="${tool.file}" target="_blank" class="no-print inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-white font-black shadow-lg" style="background:${tool.color}">
-                        開啟軟體
-                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    <a href="${tool.file}" target="_blank" class="no-print inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-white font-black shadow-lg transform hover:scale-[1.03] transition duration-200" style="background: linear-gradient(135deg, ${tool.color}, #f43f5e)">
+                        開啟主程式
+                        <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
                     </a>
                 </div>
             `;
@@ -325,31 +419,50 @@
 
             sharedFirebaseInfo.classList.remove("hidden");
             sharedFirebaseInfo.innerHTML = `
-                <div class="grid md:grid-cols-[auto_1fr] gap-5 items-start">
-                    <div class="h-16 w-16 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-3xl">
+                <div class="grid lg:grid-cols-[auto_1fr] gap-6 items-start">
+                    <div class="h-16 w-16 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-3xl shadow-sm">
                         <i class="fa-solid fa-database"></i>
                     </div>
-                    <div>
+                    <div class="w-full">
                         <p class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700 mb-3">
                             <i class="fa-solid fa-link"></i>
-                            剛好學、剛好白板、剛好簡報共用設定
+                            通用專案 Firebase 設定說明
                         </p>
-                        <h2 class="text-2xl font-black text-slate-900">三套工具可以共用同一組 Firebase 資料庫</h2>
-                        <p class="mt-3 text-slate-600 leading-7">
-                            剛好學、剛好白板、剛好簡報使用相同的瀏覽器設定儲存方式。只要在其中一套工具的網頁介面完成 Firebase 設定，並且三套工具是在同一個網址來源、同一個瀏覽器中開啟，另外兩套通常就能直接讀取同一組設定，不需要重複貼上。
+                        <h2 class="text-xl md:text-2xl font-black text-slate-800">課堂互動、白板與簡報全面整合成單一專案</h2>
+                        <p class="mt-3 text-sm md:text-base text-slate-500 leading-relaxed">
+                            由於「剛好白板」與「剛好簡報」皆已無縫嵌入「剛好學」的程式頁面中，因此<strong>它們共用同一個 Firebase 通用專案</strong>。您只需在剛好學的主頁設定一次 Firebase Config，白板與簡報即可直接使用，無需重覆設定！
                         </p>
-                        <div class="mt-5 grid md:grid-cols-3 gap-3">
-                            <div class="rounded-2xl bg-white/80 border border-emerald-100 p-4">
-                                <div class="font-black text-emerald-700 mb-1">1. 先設定一次</div>
-                                <p class="text-sm text-slate-600 leading-6">在任一套工具打開 Firebase 設定，貼上通用專案的六行設定值。</p>
+                        <div class="mt-5 grid md:grid-cols-3 gap-4">
+                            <div class="rounded-2xl bg-white p-5 border border-emerald-100 shadow-sm">
+                                <div class="font-black text-emerald-700 text-sm mb-1">1. 設定一次</div>
+                                <p class="text-xs text-slate-500 leading-relaxed">在剛好學右上角的「Firebase 設定」填入通用設定值，系統將自動套用。</p>
                             </div>
-                            <div class="rounded-2xl bg-white/80 border border-emerald-100 p-4">
-                                <div class="font-black text-emerald-700 mb-1">2. 同來源開啟</div>
-                                <p class="text-sm text-slate-600 leading-6">三套工具放在同一網站或同一資料夾網址下，瀏覽器才能共用本機設定。</p>
+                            <div class="rounded-2xl bg-white p-5 border border-emerald-100 shadow-sm">
+                                <div class="font-black text-emerald-700 text-sm mb-1">2. 本地儲存</div>
+                                <p class="text-xs text-slate-500 leading-relaxed">設定會安全存放在瀏覽器的 localStorage，只要網址不變即可自動登入。</p>
                             </div>
-                            <div class="rounded-2xl bg-white/80 border border-emerald-100 p-4">
-                                <div class="font-black text-emerald-700 mb-1">3. 剛好測分開</div>
-                                <p class="text-sm text-slate-600 leading-6">剛好測保存題庫與成績，建議使用另一個獨立 Firebase 專案。</p>
+                            <div class="rounded-2xl bg-white p-5 border border-slate-100 shadow-sm">
+                                <div class="font-black text-slate-700 text-sm mb-1">3. 剛好測分開</div>
+                                <p class="text-xs text-slate-400 leading-relaxed font-medium">剛好測因保存大量題庫與學生歷史成績，必須單獨申請並使用獨立專案。</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-5 rounded-2xl bg-white p-4 border border-emerald-100 shadow-sm">
+                            <div class="flex flex-wrap items-center justify-between gap-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="h-10 w-10 rounded-xl bg-red-50 text-red-500 flex items-center justify-center text-lg">
+                                        <i class="fa-brands fa-youtube"></i>
+                                    </div>
+                                    <div>
+                                        <div class="font-bold text-sm text-slate-800">Firebase 註冊與設定教學影片</div>
+                                        <p class="text-xs text-slate-500 mt-0.5">點擊按鈕開啟新視窗，跟著步驟完成專案建置。</p>
+                                    </div>
+                                </div>
+                                <a href="https://youtu.be/puKmTMhZ760" target="_blank" rel="noopener noreferrer"
+                                   class="no-print inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-xs font-black text-white hover:bg-slate-800 transition shadow-sm">
+                                    觀看教學
+                                    <i class="fa-solid fa-arrow-up-right-from-square text-xxs"></i>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -358,39 +471,67 @@
         }
 
         function renderEpisodes(tool) {
-            episodeCount.textContent = `${tool.episodes.length} 段，每段約 3-5 分鐘`;
-            episodesContainer.innerHTML = tool.episodes.map((episode, index) => {
+            // Filter episodes based on active query
+            const filteredEpisodes = tool.episodes.map((ep, idx) => ({ ...ep, originalIndex: idx })).filter(episode => {
+                if (!activeQuery) return true;
+                const query = activeQuery.toLowerCase();
+                return episode.title.toLowerCase().includes(query) || episode.focus.toLowerCase().includes(query);
+            });
+
+            if (filteredEpisodes.length === 0) {
+                episodesContainer.innerHTML = "";
+                emptyState.classList.remove("hidden");
+                episodeCount.textContent = `共 0 段`;
+                return;
+            }
+
+            emptyState.classList.add("hidden");
+            episodeCount.textContent = activeQuery 
+                ? `搜尋結果：共 ${filteredEpisodes.length} 段`
+                : `共 ${tool.episodes.length} 段，每段約 3-5 分鐘`;
+
+            episodesContainer.innerHTML = filteredEpisodes.map((episode) => {
                 const hasVideo = episode.videoUrl && episode.videoUrl.trim().length > 0;
                 const href = hasVideo ? episode.videoUrl : "#";
-                const title = hasVideo ? "開啟教學影片" : "影片準備中";
+                const title = hasVideo ? "開啟 Youtube 觀看" : "錄製計畫中，敬請期待";
+                const indexDisplay = String(episode.originalIndex + 1).padStart(2, "0");
+                
                 return `
-                    <article class="episode-card rounded-[1.25rem] bg-white/88 border border-white p-5">
-                        <div class="flex gap-4 items-start">
-                            <div class="h-12 w-12 rounded-2xl flex items-center justify-center text-white font-black text-lg shadow-md" style="background:${tool.color}">
-                                ${String(index + 1).padStart(2, "0")}
+                    <article class="episode-card rounded-2xl bg-white/90 border border-slate-100 p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm relative overflow-hidden">
+                        <!-- Top left border decoration -->
+                        <div class="absolute left-0 top-0 bottom-0 w-1.5" style="background: ${tool.color}"></div>
+                        
+                        <div class="flex gap-4 items-start flex-grow pl-2">
+                            <div class="h-10 w-10 md:h-12 md:w-12 rounded-xl flex items-center justify-center text-white font-black text-sm md:text-base shadow-sm shrink-0" style="background: linear-gradient(135deg, ${tool.color}, #f43f5e)">
+                                ${indexDisplay}
                             </div>
-                            <div class="min-w-0 flex-1">
-                                <div class="flex flex-wrap items-center gap-2 mb-2">
-                                    <span class="rounded-full ${tool.tint} ${tool.text} px-3 py-1 text-xs font-black">3-5 分鐘</span>
-                                    <span class="rounded-full bg-slate-100 text-slate-500 px-3 py-1 text-xs font-bold">小主題 ${index + 1}</span>
+                            <div class="min-w-0">
+                                <div class="flex flex-wrap items-center gap-2 mb-1.5">
+                                    <span class="rounded-full ${tool.tint} ${tool.text} px-2.5 py-0.5 text-xxs font-black">3-5 分鐘</span>
+                                    <span class="rounded-full bg-slate-100 text-slate-500 px-2.5 py-0.5 text-xxs font-bold">主題 ${indexDisplay}</span>
+                                    ${hasVideo ? '<span class="rounded-full bg-emerald-50 text-emerald-600 px-2.5 py-0.5 text-xxs font-black flex items-center gap-1"><i class="fa-solid fa-check"></i> 可播放</span>' : '<span class="rounded-full bg-slate-100 text-slate-400 px-2.5 py-0.5 text-xxs font-bold">規畫中</span>'}
                                 </div>
-                                <h3 class="text-xl font-black text-slate-900 leading-snug">${episode.title}</h3>
-                                <p class="mt-2 text-slate-600 leading-7">${episode.focus}</p>
+                                <h3 class="text-lg md:text-xl font-black text-slate-800 leading-snug">${episode.title}</h3>
+                                <p class="mt-1.5 text-xs md:text-sm text-slate-500 leading-relaxed font-medium">${episode.focus}</p>
                             </div>
-                            <a class="video-link ${hasVideo ? "text-white" : "bg-slate-100 text-slate-400"}"
-                               style="${hasVideo ? `background:${tool.color}` : ""}"
+                        </div>
+
+                        <div class="flex items-center justify-end shrink-0 pl-14 md:pl-0">
+                            <a class="video-link w-10 h-10 md:w-12 md:h-12 rounded-full inline-flex items-center justify-center shadow-md ${hasVideo ? 'text-white cursor-pointer' : 'bg-slate-100 text-slate-400 cursor-default'}"
+                               style="${hasVideo ? `background: linear-gradient(135deg, ${tool.color}, #f43f5e)` : ''}"
                                href="${href}"
-                               target="${hasVideo ? "_blank" : "_self"}"
+                               target="${hasVideo ? '_blank' : '_self'}"
                                rel="noopener noreferrer"
                                title="${title}"
                                aria-label="${title}">
-                                <i class="fa-solid ${hasVideo ? "fa-circle-play" : "fa-video"} text-xl"></i>
+                                <i class="fa-solid ${hasVideo ? 'fa-circle-play' : 'fa-video'} text-xl"></i>
                             </a>
                         </div>
                     </article>
                 `;
             }).join("");
 
+            // Prevent scroll jumping on dummy links
             document.querySelectorAll('.video-link[href="#"]').forEach((link) => {
                 link.addEventListener("click", (event) => event.preventDefault());
             });
@@ -402,10 +543,46 @@
             renderIntro(tool);
             renderSharedFirebaseInfo(tool);
             renderEpisodes(tool);
+            animateEpisodesEntrance();
         }
 
-        totalEpisodes.textContent = tutorialModules.reduce((sum, tool) => sum + tool.episodes.length, 0);
-        renderPage();
+        // Handle Realtime Search filtering
+        searchQuery.addEventListener("input", (e) => {
+            activeQuery = e.target.value;
+            if (activeQuery) {
+                clearSearchBtn.classList.remove("hidden");
+            } else {
+                clearSearchBtn.classList.add("hidden");
+            }
+            const tool = tutorialModules.find((item) => item.id === currentToolId);
+            renderEpisodes(tool);
+        });
+
+        clearSearchBtn.addEventListener("click", () => {
+            searchQuery.value = "";
+            activeQuery = "";
+            clearSearchBtn.classList.add("hidden");
+            const tool = tutorialModules.find((item) => item.id === currentToolId);
+            renderEpisodes(tool);
+        });
+
+        // Initialize Page
+        document.addEventListener("DOMContentLoaded", () => {
+            // Count total episodes and animate
+            const total = tutorialModules.reduce((sum, tool) => sum + tool.episodes.length, 0);
+            animateCount(totalEpisodesEl, total);
+            renderPage();
+
+            // Simple entrance animation for header elements
+            anime({
+                targets: 'header h1, header p, header nav',
+                opacity: [0, 1],
+                translateY: [-15, 0],
+                delay: anime.stagger(100),
+                easing: 'easeOutExpo',
+                duration: 1000
+            });
+        });
     </script>
 </body>
 </html>
