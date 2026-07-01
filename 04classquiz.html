@@ -18,6 +18,7 @@
     <!-- PDF.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
         // 設定 PDF.js worker
         window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -1813,7 +1814,7 @@
         
         <!-- Footer -->
         <footer class="bg-white/80 backdrop-blur-md border-t border-slate-200 py-4 text-center text-sm text-slate-500">
-            Made by <a href="https://kentxchang.blogspot.com/" target="_blank" class="text-violet-600 hover:underline font-bold">阿剛老師 V1.6</a>
+            Made by <a href="https://kentxchang.blogspot.com/" target="_blank" class="text-violet-600 hover:underline font-bold">阿剛老師 V2.1</a>
         </footer>
     </div>
 
@@ -3993,10 +3994,90 @@ Output format must be a strict JSON Array without Markdown markers:
             showExportModal.value = true;
         };
 
+        // Wayground (Quizizz) \u683C\u5F0F\uFF1A\u76F4\u63A5\u532F\u51FA\u8207 Quizizz Spreadsheet Upload Sample \u76F8\u540C\u6B04\u4F4D\u7684 xlsx
+        const exportWaygroundXLSX = (quiz) => {
+            const cleanCell = (text) => String(text == null ? '' : text)
+                .replace(/[\n\r]+/g, ' ').replace(/\s+/g, ' ').trim();
+
+            const header = ['Question Text', 'Question Type', 'Option 1', 'Option 2', 'Option 3', 'Option 4', 'Option 5', 'Correct Answer', 'Time in seconds', 'Image Link', 'Answer explanation'];
+            const rows = [header];
+
+            quiz.questions.forEach((q) => {
+                rows.push([
+                    cleanCell(q.title || q.question || ''),
+                    'Multiple Choice',
+                    cleanCell(q.options[0] || ''),
+                    cleanCell(q.options[1] || ''),
+                    cleanCell(q.options[2] || ''),
+                    cleanCell(q.options[3] || ''),
+                    cleanCell(q.options[4] || ''),
+                    q.answer,
+                    '',
+                    '',
+                    ''
+                ]);
+            });
+
+            const ws = XLSX.utils.aoa_to_sheet(rows);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Create a Quiz');
+            XLSX.writeFile(wb, `${quiz.title}_Wayground.xlsx`);
+        };
+
+        // Kahoot \u683C\u5F0F\uFF1A\u76F4\u63A5\u532F\u51FA\u8207 KahootQuizTemplate \u76F8\u540C\u6B04\u4F4D\u7684 xlsx\uFF08\u5B8C\u6574\u4FDD\u7559 1-8 \u5217\u7BC4\u672C\u5167\u5BB9\uFF09
+        const exportKahootXLSX = (quiz) => {
+            const cleanCell = (text) => String(text == null ? '' : text)
+                .replace(/[\n\r]+/g, ' ').replace(/\s+/g, ' ').trim();
+
+            const rows = [
+                [null, null, null, null, null, null, null, null],
+                [null, 'Quiz template', null, null, null, null, null, null],
+                [null, 'Add questions, at least two answer alternatives, time limit and choose correct answers (at least one). Have fun creating your awesome quiz!', null, null, null, null, null, null],
+                [null, 'Remember: questions have a limit of 120 characters and answers can have 75 characters max. Text will turn red in Excel or Google Docs if you exceed this limit. If several answers are correct, separate them with a comma.', null, null, null, null, null, null],
+                [null, "See an example question below (don't forget to overwrite this with your first question!)", null, null, null, null, null, null],
+                [null, "And remember,  if you're not using Excel you need to export to .xlsx format before you upload to Kahoot!", null, null, null, null, null, null],
+                [null, null, null, null, null, null, null, null],
+                [null, 'Question - max 120 characters', 'Answer 1 - max 75 characters', 'Answer 2 - max 75 characters', 'Answer 3 - max 75 characters', 'Answer 4 - max 75 characters', 'Time limit (sec) \u2013 5, 10, 20, 30, 60, 90, 120, or 240 secs', 'Correct answer(s) - choose at least one']
+            ];
+
+            quiz.questions.forEach((q, index) => {
+                rows.push([
+                    index + 1,
+                    cleanCell(q.title || q.question || ''),
+                    cleanCell(q.options[0] || ''),
+                    cleanCell(q.options[1] || ''),
+                    cleanCell(q.options[2] || ''),
+                    cleanCell(q.options[3] || ''),
+                    60,
+                    q.answer
+                ]);
+            });
+
+            const ws = XLSX.utils.aoa_to_sheet(rows);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+            XLSX.writeFile(wb, `${quiz.title}_Kahoot.xlsx`);
+        };
+
         const exportQuizCSV = (format) => {
             if (!exportingQuiz.value) return;
 
             const quiz = exportingQuiz.value;
+
+            // Wayground \u6539\u70BA\u532F\u51FA Quizizz \u683C\u5F0F xlsx
+            if (format === 'wayground') {
+                exportWaygroundXLSX(quiz);
+                showExportModal.value = false;
+                return;
+            }
+
+            // Kahoot \u6539\u70BA\u532F\u51FA KahootQuizTemplate \u683C\u5F0F xlsx
+            if (format === 'kahoot') {
+                exportKahootXLSX(quiz);
+                showExportModal.value = false;
+                return;
+            }
+
             let csvContent = "\uFEFF"; // BOM for Excel Chinese support
 
             // Clean up text and wrap in quotes for CSV
